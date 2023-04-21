@@ -127,9 +127,7 @@ def update_user_info():
     # в случае передачи неверного значения action в ответ приходит сообщение об ошибке
     else:
         return jsonify({
-            'error': 'Invalid action - {}'.format(action),
-            'uuid': generate_uuid(),
-            'lastUpdate': '2022-02-20T12:09:50'
+            'error': 'Invalid action - {}'.format(action)
         })
 
 # запуск приложения
