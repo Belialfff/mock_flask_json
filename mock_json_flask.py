@@ -117,15 +117,11 @@ def update_user_info():
                 else:
                     # в случае, если alert не найден
                     return jsonify({
-                        'error': 'Alert not found',
-                        'uuid': generate_uuid(),
-                        'lastUpdate': '2022-02-20T12:09:50'
+                        'error': 'Alert not found'
                     })
         # на случай, если тикер не найден
         return jsonify({
-            'error': 'Ticker not found',
-            'uuid': generate_uuid(),
-            'lastUpdate': '2022-02-20T12:09:50'
+            'error': 'Ticker not found'
         })
 
     # в случае передачи неверного значения action в ответ приходит сообщение об ошибке
