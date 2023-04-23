@@ -4,7 +4,6 @@ import uuid
 
 app = Flask(__name__)
 app.config['JSON_SORT_KEYS'] = False
-
 # исходная информация о пользователе
 USER_INFO = {
     "userID": "LT2567026",
@@ -132,4 +131,4 @@ def update_user_info():
 
 # запуск приложения
 if __name__ == '__main__':
-    app.run(port=8080, debug=True)
+    app.run(host='0.0.0.0', port=8080, debug=True)
