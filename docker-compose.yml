@@ -4,6 +4,6 @@ services:
     build: .
     command: python mock_json_flask.py
     ports:
-      - "8080:8080"
+      - "8090:8090"
     restart: always
     container_name: flask-a
