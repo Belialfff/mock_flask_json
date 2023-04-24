@@ -5,37 +5,7 @@ import uuid
 app = Flask(__name__)
 app.config['JSON_SORT_KEYS'] = False
 # исходная информация о пользователе
-USER_INFO = {
-    "userID": "LT2567026",
-    "tickers": [
-        {
-            "ticker": "M",
-            "alerts": [
-                {
-                    "timeframe": 5,
-                    "percent": 1
-                },
-                {
-                    "timeframe": 10,
-                    "percent": 5
-                }
-            ]
-        },
-        {
-            "ticker": "A",
-            "alerts": [
-                {
-                    "timeframe": 60,
-                    "percent": 10
-                },
-                {
-                    "timeframe": 10,
-                    "percent": 5
-                }
-            ]
-        }
-    ]
-}
+
 
 # генерация UUID
 def generate_uuid():
@@ -46,82 +16,80 @@ def time_now():
     current_time = datetime.now().isoformat(sep="T", timespec="seconds")
     return current_time
 
-
 @app.route('/json/', methods=['POST'])
 def update_user_info():
     # добавление параметра action
     action = request.args.get('action')
     # проверка параметра
     if action == 'add':
-        # ожидаемые в теле json параметры, прим.:
-        """
-        {
-    "tickerName" : "str",
-    "timeframe" : int,
-    "percent" : int
-           }
-        """
-        data = request.json
-        tickerName = data.get('tickerName')
-        timeframe = data.get('timeframe')
-        percent = data.get('percent')
-        ticker_info = None
-        # проверка, есть ли в теле тикер с таким же именем
-        for ticker in USER_INFO['tickers']:
-            if ticker['ticker'] == tickerName:
-                ticker_info = ticker
-                break
-        # если тикера нет - создаём его и добавляем в него "alert"
-        if ticker_info is None:
-            ticker_info = {
-                'ticker': tickerName,
-                'alerts': []
-            }
-            USER_INFO['tickers'].append(ticker_info)
-        alerts = ticker_info['alerts']
-        alerts.append({'timeframe': timeframe, 'percent': percent})
+        # Получаем JSON-тело из запроса
+        request_data = request.get_json()
+        tickers = request_data['info']['tickers']
+        # Извлекаем параметры из JSON-тела
+        name = request_data['add']['name']
+        timeFrame = request_data['add']['timeFrame']
+        percent = request_data['add']['percent']
 
-        # возвращаем изменённый "USER_INFO" с параметрами 'uuid' и 'lastUpdate'
-        return jsonify({
-            'uuid': generate_uuid(),
-            'lastUpdate': time_now(),
-            'info': USER_INFO
-        })
+        # Добавляем новый тикер в список
+        new_ticker = {
+            "ticker": name,
+            "alerts": [
+                {
+                    "timeframe": timeFrame,
+                    "percent": percent
+                }
+            ]
+        }
+        tickers.append(new_ticker)
+
+        # Формируем и возвращаем JSON-ответ
+        response_data = {
+            "info": {
+                "userID": request_data['info']['userID'],
+                "tickers": tickers
+            },
+            "uuid": generate_uuid(),
+            "lastUpdate": time_now()
+        }
+        return jsonify(response_data)
+
     elif action == 'delete':
-        # ожидаемые в теле json параметры вида:
-        """
-        {
-    "tickerName" : "str",
-    "alertIndex" : int
-           }
-        """
-        data = request.json
-        tickerName = data.get('tickerName')
-        alertIndex = data.get('alertIndex')
+        request_data = request.get_json()
 
-        # проход по "tiker" в теле "USER_INFO"
-        for ticker in USER_INFO['tickers']:
+        # Извлекаем параметры из JSON-тела
+        tickerName = request_data['delete']['name']
+        alertIndex = request_data['delete']['alertIndex']
+        tickers = request_data['info']['tickers']
+
+        # Получаем список тикеров из JSON-тела
+        tickers = request_data['info']['tickers']
+
+        # Ищем нужный тикер в списке
+        ticker_found = False
+        for ticker in tickers:
             if ticker['ticker'] == tickerName:
-                alerts = ticker['alerts']
-                # проверяем, существует ли alert по заданному индексу
-                if alertIndex < len(alerts):
-                    # удаляем alert по индексу
-                    del alerts[alertIndex]
-                    # возвращаем изменённый "USER_INFO" с параметрами 'uuid' и 'lastUpdate'
-                    return jsonify({
-                        'uuid': generate_uuid(),
-                        'lastUpdate': time_now(),
-                        'info': USER_INFO,
-                    })
+                ticker_found = True
+                # Проверяем наличие индекса в списке оповещений для данного тикера
+                if alertIndex < len(ticker['alerts']):
+                    # Удаляем запись об оповещении по индексу
+                    ticker['alerts'].pop(alertIndex)
                 else:
-                    # в случае, если alert не найден
-                    return jsonify({
-                        'error': 'Alert not found'
-                    })
-        # на случай, если тикер не найден
-        return jsonify({
-            'error': 'Ticker not found'
-        })
+                    return jsonify({"error": "Index out of range"})
+                break
+
+        if not ticker_found:
+            return jsonify({"error": "Ticker not found"})
+
+        # Формируем и возвращаем JSON-ответ
+        response_data = {
+            "info": {
+                "userID": request_data['info']['userID'],
+                "tickers": tickers
+            },
+            "uuid": generate_uuid(),
+            "lastUpdate": time_now()
+        }
+        return jsonify(response_data)
 
     # в случае передачи неверного значения action в ответ приходит сообщение об ошибке
     else:
