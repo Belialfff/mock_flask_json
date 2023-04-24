@@ -3,6 +3,8 @@ services:
   flask:
     build: .
     command: python mock_json_flask.py
+    volumes:
+      - /mock_flask:/data
     ports:
       - "8090:8090"
     mem_limit: 2056m
