@@ -1,6 +1,6 @@
 FROM python:3.10
 
-EXPOSE 8080
+EXPOSE 8090
 
 WORKDIR /app
 
