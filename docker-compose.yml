@@ -5,5 +5,7 @@ services:
     command: python mock_json_flask.py
     ports:
       - "8090:8090"
+    mem_limit: 2056m
+    cpus: 2.0
     restart: always
     container_name: flask-a
