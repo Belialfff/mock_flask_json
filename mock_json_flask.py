@@ -17,7 +17,7 @@ def time_now():
     current_time = datetime.now().isoformat(sep="T", timespec="seconds")
     return current_time
 
-@app.route('/json/', methods=['POST'])
+@app.route('/json', methods=['POST'])
 def update_user_info():
     # добавление параметра action
     action = request.args.get('action')
@@ -30,6 +30,7 @@ def update_user_info():
         name = request_data['add']['name']
         timeFrame = request_data['add']['timeFrame']
         percent = request_data['add']['percent']
+        ticker_info = None
 
         # Добавляем новый тикер в список
         new_ticker = {
@@ -41,7 +42,19 @@ def update_user_info():
                 }
             ]
         }
-        tickers.append(new_ticker)
+        # Проверяем на наличие тикера с таким именем в теле запроса
+        for ticker in request_data['info']['tickers']:
+            if ticker['ticker'] == name:
+                ticker_info = ticker
+                break
+        if ticker_info is None:
+            ticker_info = {
+                'ticker': name,
+                'alerts': []
+            }
+            tickers.append(new_ticker)
+        alerts = ticker_info['alerts']
+        alerts.append({'timeframe': timeFrame, 'percent': percent})
 
         # Формируем и возвращаем JSON-ответ
         response_data = {
