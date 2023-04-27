@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from datetime import datetime
 import uuid
 
+
 app = Flask(__name__)
 app.config['JSON_SORT_KEYS'] = False
 # исходная информация о пользователе
@@ -97,7 +98,6 @@ def update_user_info():
         response = jsonify(error)
         response.status_code = 400
         return response
-
 # запуск приложения
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port = 8090, debug=True)
+    app.run(host='0.0.0.0', debug=True)
