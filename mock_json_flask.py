@@ -93,9 +93,10 @@ def update_user_info():
 
     # в случае передачи неверного значения action в ответ приходит сообщение об ошибке
     else:
-        return jsonify({
-            'error': 'Передан некорректный action - {}'.format(action)
-        })
+        error = {'message': 'передан некорректный action  - {}'.format(action)}
+        response = jsonify(error)
+        response.status_code = 400
+        return response
 
 # запуск приложения
 if __name__ == '__main__':
