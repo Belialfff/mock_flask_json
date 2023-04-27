@@ -73,7 +73,6 @@ def update_user_info():
         # Извлекаем параметры из JSON-тела
         tickerName = request_data['delete']['name']
         alertIndex = request_data['delete']['alertIndex']
-        tickers = request_data['info']['tickers']
 
         # Получаем список тикеров из JSON-тела
         tickers = request_data['info']['tickers']
